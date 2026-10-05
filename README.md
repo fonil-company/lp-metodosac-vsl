@@ -19,7 +19,7 @@ Abra `http://127.0.0.1:4173`.
 - Todos os CTAs direcionam a https://v1.sacmetodo.com.br/ e repassam UTMs e identificadores comuns de campanha.
 - Nove blocos visíveis. A dobra de três provas sociais aguarda depoimentos reais, com resultado, identificação e autorização de uso. Não existem provas fictícias ou placeholders visíveis.
 - FAQ acessível via teclado, com uma resposta aberta por vez.
-- `dataLayer`: `view_content`, `click_apply`, `video_requested` e `play_video` (quando o player confirmar reprodução). Nenhum ID de Meta, Google ou GTM foi fornecido. `quiz_start` e `quiz_complete` pertencem ao quiz externo e precisam ser configurados lá.
+- `dataLayer`: `view_content`, `click_apply`, `video_requested`, `play_testimonial` e `play_video` (quando o player confirmar reprodução). Nenhum ID de Meta, Google ou GTM foi fornecido. `quiz_start` e `quiz_complete` pertencem ao quiz externo e precisam ser configurados lá.
 - Texto segue o DOCX (Sistema de Aquisição Comercial); logo preserva o descritivo do arquivo original (Sistema de Aquisição de Clientes).
 
 ## Arquivos

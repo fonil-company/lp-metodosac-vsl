@@ -20,3 +20,15 @@
 @media(max-width:600px){.header-signature{display:none}.hero .eyebrow{font-size:12px;max-width:320px}.video-topline{font-size:12px;gap:14px}.video-topline span:last-child{text-align:right}.benefits-grid>span{font-size:12px}.button{font-size:16px}.stage-tag{font-size:12px}.pipeline-stage{flex-wrap:wrap}.stage-tag{margin-left:28px}.footer{flex-wrap:wrap;padding-block:25px;gap:15px}.footer p{font-size:12px}.motor-connector{display:none}.motor-two{position:relative}.motor-two:before{content:"+";position:absolute;left:calc(50% - 20px);top:-35px;width:40px;height:40px;border:1px solid #7d962f;background:#0d0d0d;color:#c6f601;border-radius:50%;display:grid;place-items:center;font-size:24px;line-height:1}}
 
 .motor{min-width:0;overflow-wrap:anywhere}
+
+/* Real client testimonials: second section, with deferred video downloads. */
+.testimonials{background:radial-gradient(ellipse at 50% 70%,#28331433,transparent 65%),#0d0d0d;border-bottom:1px solid var(--line)}
+.testimonials .section-heading{max-width:940px}
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;max-width:1060px;margin:0 auto}
+.testimonial-card{min-width:0;overflow:hidden;border:1px solid #444d35;border-radius:5px;background:#181d13}
+.testimonial-card video{display:block;width:100%;height:auto;aspect-ratio:9/16;object-fit:contain;background:#080a06}
+.testimonial-card figcaption{padding:22px 24px;border-top:1px solid #3b442f;display:flex;flex-direction:column;gap:5px}
+.testimonial-card figcaption strong{font-size:22px;letter-spacing:-.03em;line-height:1.3}
+.testimonial-card figcaption span{color:#b3be9f;font-size:12px;text-transform:uppercase;letter-spacing:.09em}
+@media(max-width:900px){.testimonials-grid{gap:16px}.testimonial-card figcaption{padding:18px 15px}.testimonial-card figcaption strong{font-size:20px}}
+@media(max-width:600px){.testimonials-grid{grid-template-columns:1fr;max-width:360px;gap:24px}.testimonial-card figcaption{padding:20px 24px}.testimonial-card figcaption strong{font-size:22px}}

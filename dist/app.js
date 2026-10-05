@@ -64,6 +64,17 @@
     document.head.append(api);
   }, { once: true });
 
+  // Avoid overlapping audio and record only actual testimonial playback.
+  const testimonials = document.querySelectorAll('[data-testimonial]');
+  testimonials.forEach(video => {
+    video.addEventListener('play', () => {
+      testimonials.forEach(other => { if (other !== video) other.pause(); });
+    });
+    video.addEventListener('playing', () => {
+      track('play_testimonial', { testimonial: video.dataset.testimonial });
+    }, { once: true });
+  });
+
   // Keep one FAQ answer open in browsers without native details[name] support.
   document.querySelectorAll('.faq-items details').forEach(detail => {
     detail.addEventListener('toggle', () => {
