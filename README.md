@@ -1,32 +1,44 @@
-# Método S.A.C — Landing page VSL
+# Método S.A.C — VSL com diagnóstico integrado
 
-Página estática, responsiva e sem dependências de build. O conteúdo publicável está em `dist/`.
+Os cinco CTAs abrem o quiz na própria página, em uma janela de tela inteira. O quiz é servido pelo mesmo site. Voltar à apresentação preserva as respostas enquanto a página permanecer aberta.
 
-## Visualização local
+Conteúdo importado do fluxo ativo de `lp-quiz-metodosac-v1-main`: nome, operação, faturamento, origem dos clientes, contato, processamento e resultado. Alternativas, textos e pontuação originais foram preservados.
+
+## Executar
+
+Requer Node.js 22 ou superior.
 
 ```sh
-python -m http.server 4173 --directory dist --bind 127.0.0.1
+npm ci
+npm run build
+npm run dev
 ```
 
-Abra `http://127.0.0.1:4173`.
+Abra http://127.0.0.1:4173. O servidor local também atende `/api/submit`.
 
-## Conteúdo e integrações
+Antes de testar envios localmente, copie `.env.example` para `.env` e configure `WEBHOOK_LEADS_URL`. O token não deve ser versionado. A configuração secreta do Sites não é copiada para o GitHub: configure também essa variável na hospedagem que usar este repositório.
 
-- Layout inspirado na estrutura de https://vincisociety.com.br/negocios-creators/ e adaptado ao guia DOCX e à identidade visual fornecidos.
-- Logo original enviada pelo cliente, exibida sem as margens transparentes por CSS.
-- Inter hospedada localmente; cores `#0D0D0D`, `#1A1A1A`, `#6CF203` e `#C6F601`.
-- VSL: https://www.youtube.com/watch?v=v-A7exiRzbE. O player só é carregado após o clique.
-- Todos os CTAs direcionam a https://v1.sacmetodo.com.br/ e repassam UTMs e identificadores comuns de campanha.
-- Nove blocos visíveis. A dobra de três provas sociais aguarda depoimentos reais, com resultado, identificação e autorização de uso. Não existem provas fictícias ou placeholders visíveis.
-- FAQ acessível via teclado, com uma resposta aberta por vez.
-- Pixel da Meta `1014610764961858` instalado em `dist/index.html`, com evento `PageView`. `dataLayer`: `view_content`, `click_apply`, `video_requested`, `play_testimonial` e `play_video` (quando o player confirmar reprodução). `quiz_start` e `quiz_complete` pertencem ao quiz externo e precisam ser configurados lá.
-- Texto segue o DOCX (Sistema de Aquisição Comercial); logo preserva o descritivo do arquivo original (Sistema de Aquisição de Clientes).
+Em hospedagens Node.js, execute `npm ci && npm run build`, defina `HOST=0.0.0.0` e inicie com `npm start`. `PORT` é configurável. GitHub Pages não executa a API de envio deste projeto.
 
-## Arquivos
+## Estrutura
 
-- `dist/index.html`: conteúdo e metadados.
-- `dist/styles.css`: identidade visual e responsividade.
-- `dist/app.js`: CTAs, parâmetros de campanha, player e FAQ.
-- `dist/assets/`: logo, thumbnail real da VSL e fontes.
+- `public/`: VSL, estilos, vídeos, fontes e documento do quiz.
+- `src/components/quiz/`: componentes importados e adaptados.
+- `src/lib/`: pontuação, rótulos, tipos e validações originais.
+- `src/worker.js`: API de envio compatível com Cloudflare Workers.
+- `dist/client/`: arquivos gerados para o navegador.
+- `dist/server/`: Worker e configuração gerados.
 
-Para alterar a URL do diagnóstico, atualize `QUIZ_URL` no JavaScript e os links de fallback no HTML.
+O site precisa do Worker para enviar cadastros; hospedagem exclusivamente estática não atende `/api/submit`. Altere `public/` ou `src/` e execute o build.
+
+## Envio
+
+`WEBHOOK_LEADS_URL` substitui o webhook CRM original. `WEBHOOK_SUPABASE_URL` configura o destino secundário opcional, somente no servidor. Não coloque tokens no JavaScript público.
+
+Em 06/10/2026, o serviço CRM original retornou HTTP 402 com `DEPLOYMENT_DISABLED`. É necessário reativá-lo ou configurar outro webhook para receber cadastros. O resultado é calculado e exibido independentemente do envio. Na falha, a tela de resultado informa que os dados ainda não foram entregues e permite tentar novamente. As respostas ficam apenas na memória da página aberta, sem confirmação falsa nem promessa de envio automático posterior.
+
+UTMs e identificadores de campanha são repassados ao CRM. O Pixel PageView existente permanece na VSL. `dataLayer` recebe `click_apply`, `quiz_start` e `quiz_complete`; o último só ocorre após confirmação de envio. Esses eventos não contêm dados pessoais.
+
+## Verificação
+
+Com o servidor ativo, execute `node scripts/verify.mjs`. O teste verifica desktop e celular, campos obrigatórios, preservação das respostas, resultado, UTMs e falhas de envio. Envios são simulados e não geram cadastros reais.

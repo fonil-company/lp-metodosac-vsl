@@ -1,0 +1,11 @@
+import { build } from 'esbuild';
+import { cp, mkdir, writeFile } from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+await mkdir('dist/client/quiz', { recursive: true });
+await mkdir('dist/server', { recursive: true });
+await cp('public', 'dist/client', { recursive: true });
+await build({ entryPoints: ['src/quiz-entry.tsx'], outfile: 'dist/client/quiz/quiz.js', bundle: true, minify: true, jsx: 'automatic', alias: { '@': './src' }, define: { 'process.env.NODE_ENV': '"production"' } });
+const css = spawnSync(process.execPath, ['node_modules/@tailwindcss/cli/dist/index.mjs', '-i', 'src/quiz.css', '-o', 'dist/client/quiz/quiz.css', '--minify'], { stdio: 'inherit' });
+if (css.status !== 0) process.exit(css.status || 1);
+await cp('src/worker.js', 'dist/server/index.js');
+await writeFile('dist/server/wrangler.json', JSON.stringify({ name: 'metodo-sac-vsl', main: 'index.js', compatibility_date: '2026-10-01', assets: { directory: '../client', binding: 'ASSETS', run_worker_first: ['/api/*'] } }, null, 2));

@@ -1,0 +1,67 @@
+﻿.welcome {
+  --lime: #c5ff3f;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 52px 48px 36px;
+  background: radial-gradient(ellipse at 88% 26%, #26380e66, transparent 40%), radial-gradient(ellipse at 0% 100%, #879e171c, transparent 22%), #101110;
+}
+.hero { position: relative; min-height: 640px; }
+.copy { position: relative; z-index: 2; padding-top: 18px; pointer-events: none; }
+.logo { margin-bottom: 48px; }
+.logo > div { width: 310px !important; }
+.badge { display: inline-flex; align-items: center; gap: 10px; border: 1px solid #8cb51d88; border-radius: 100px; padding: 10px 20px; color: var(--lime); background: #b6ec3110; text-transform: uppercase; font-size: 14px; letter-spacing: .3px; }
+.badge svg { flex-shrink: 0; }
+.copy h1 { max-width: 590px; margin: 30px 0; font-size: clamp(40px, 4.5vw, 56px); font-weight: 750; line-height: 1.08; letter-spacing: -2px; text-wrap: balance; }
+.copy h1 span { color: var(--lime); }
+.description { max-width: 565px; color: #c3c3ce; font-size: 21px; line-height: 1.65; }
+.portrait { position: absolute; z-index: 0; right: -110px; top: -20px; width: 650px; height: 680px; pointer-events: none; }
+.portrait::before { content: ''; position: absolute; inset: 14% 8% 12% 25%; background: radial-gradient(ellipse, #a4de3a65, transparent 68%); filter: blur(25px); }
+.photo { object-fit: contain; object-position: bottom right; mask-image: linear-gradient(to bottom, #000 80%, transparent 100%); }
+.brandMark { position: absolute; top: 85px; right: 35px; width: 180px; height: 240px; opacity: .16; background: var(--lime); clip-path: polygon(50% 0,100% 28%,100% 48%,50% 20%,0 48%,0 28%,50% 0,50% 40%,100% 68%,100% 88%,50% 60%,0 88%,0 68%,50% 40%); }
+.introduction { position: absolute; z-index: 3; bottom: 28px; right: -12px; width: 325px; padding: 16px 18px 16px 32px; border: 1px solid #ffffff30; border-radius: 14px; background: #111310e8; box-shadow: 0 12px 30px #0004; }
+.introduction::before { content: ''; position: absolute; width: 3px; top: 18px; bottom: 18px; left: 14px; border-radius: 4px; background: linear-gradient(var(--lime), #b7ff0010); }
+.introduction strong { font-size: 19px; }
+.introduction p { color: #c3c3ce; font-size: 14px; line-height: 1.5; margin-top: 5px; }
+.benefits { position: relative; z-index: 3; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 4px -16px 36px; }
+.benefit { display: flex; align-items: center; gap: 18px; padding: 28px 22px; border: 1px solid #ffffff24; border-radius: 15px; background: #111210b3; }
+.icon { flex-shrink: 0; display: grid; place-items: center; width: 58px; height: 62px; border-radius: 15px; color: var(--lime); background: #c5ff3f19; }
+.benefit p { font-size: 18px; line-height: 1.45; font-weight: 500; }
+.cta { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-height: 94px; padding: 20px; border: 1px solid #deff9a; border-radius: 15px; background: var(--lime); color: #080b02; font-size: 29px; font-weight: 750; letter-spacing: -.8px; cursor: pointer; transition: background .2s, box-shadow .2s; }
+.cta svg { width: 30px; height: 30px; flex-shrink: 0; }
+.cta:hover { background: #d4ff78; box-shadow: 0 0 32px #c5ff3f20; }
+.cta:focus-visible { outline: 3px solid white; outline-offset: 5px; }
+.footnote { text-align: center; color: #989898; font-size: 17px; margin-top: 18px; }
+@media (max-width: 1000px) and (min-width: 761px) {
+  .welcome { padding: 36px 30px; }
+  .copy h1 { max-width: 510px; font-size: 48px; }
+  .description { max-width: 470px; font-size: 19px; }
+  .portrait { right: -180px; opacity: .8; }
+  .introduction { width: 280px; }
+  .benefit { padding: 20px 14px; gap: 12px; }
+  .benefit p { font-size: 15px; }
+  .icon { width: 44px; height: 50px; }
+}
+@media (max-width: 760px) {
+  .welcome { padding: 28px 22px; }
+  .hero { min-height: auto; display: flex; flex-direction: column; }
+  .copy { padding: 0; }
+  .logo { margin-bottom: 28px; }
+  .logo > div { width: 245px !important; }
+  .badge { padding: 9px 12px; font-size: 10px; gap: 7px; }
+  .badgeSeparator { display: none; }
+  .badgeTime { display: block; margin-top: 2px; }
+  .copy h1 { max-width: 560px; font-size: clamp(34px, 8vw, 48px); letter-spacing: -1.3px; margin: 24px 0 20px; }
+  .description { max-width: 100%; font-size: 17px; line-height: 1.65; }
+  .portrait { position: relative; order: 2; top: auto; right: auto; width: 100%; height: 360px; margin-top: 16px; }
+  .photo { object-position: center bottom; }
+  .brandMark { right: 0; top: 30px; }
+  .introduction { position: relative; order: 3; width: 100%; right: auto; bottom: auto; margin-top: -60px; margin-bottom: 24px; }
+  .benefits { grid-template-columns: 1fr; margin: 0 0 24px; gap: 10px; }
+  .benefit { padding: 16px; gap: 16px; }
+  .benefit p { font-size: 16px; }
+  .icon { width: 48px; height: 48px; border-radius: 12px; }
+  .cta { min-height: 76px; font-size: 20px; letter-spacing: -.5px; padding: 16px 12px; gap: 8px; }
+  .cta svg { width: 23px; }
+  .footnote { font-size: 13px; margin-top: 16px; }
+}
