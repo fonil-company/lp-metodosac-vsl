@@ -4,7 +4,7 @@ export default {
     if (new URL(request.url).pathname !== '/api/submit') return env.ASSETS.fetch(request);
     if (request.method !== 'POST') return Response.json({ success: false }, { status: 405, headers: { Allow: 'POST' } });
     const origin = request.headers.get('origin');
-    if (origin && origin !== new URL(request.url).origin) return Response.json({ success: false }, { status: 403 });
+    if (origin && origin.split('://').pop() !== new URL(request.url).host) return Response.json({ success: false }, { status: 403 });
     try {
       const text = await request.text();
       if (text.length > 20000) return Response.json({ success: false }, { status: 413 });
@@ -20,7 +20,10 @@ export default {
       const payload = Object.fromEntries(Object.entries(fields).flatMap(([to, from]) => typeof body[from] === 'string' && body[from].trim() ? [[to, body[from].trim()]] : []));
       const post = url => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: AbortSignal.timeout(15000) });
       const response = await post(env.WEBHOOK_LEADS_URL || DEFAULT_WEBHOOK);
-      if (!response.ok) return Response.json({ success: false, error: 'Não foi possível enviar seus dados. Tente novamente em instantes.' }, { status: 502 });
+      if (!response.ok) {
+        console.error(`Webhook de leads respondeu ${response.status}.`);
+        return Response.json({ success: false, error: 'Não foi possível enviar seus dados. Tente novamente em instantes.' }, { status: 502 });
+      }
       if (env.WEBHOOK_SUPABASE_URL) {
         try { await post(env.WEBHOOK_SUPABASE_URL); } catch { console.error('Falha no webhook secundário.'); }
       }
