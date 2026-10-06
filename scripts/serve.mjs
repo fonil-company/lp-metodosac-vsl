@@ -4,7 +4,7 @@ import path from 'node:path';
 import worker from '../src/worker.js';
 try { process.loadEnvFile(); } catch (error) { if (error.code !== 'ENOENT') throw error; }
 const port = Number(process.env.PORT || 4173);
-const host = process.env.HOST || '127.0.0.1';
+const host = process.env.HOST || '0.0.0.0';
 const root = path.resolve('dist/client');
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.jpg': 'image/jpeg', '.ttf': 'font/ttf', '.mp4': 'video/mp4' };
 http.createServer(async (req, res) => {
