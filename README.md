@@ -2,7 +2,9 @@
 
 Os cinco CTAs abrem o quiz na própria página, em uma janela de tela inteira. O quiz é servido pelo mesmo site. Voltar à apresentação preserva as respostas enquanto a página permanecer aberta.
 
-Conteúdo importado do fluxo ativo de `lp-quiz-metodosac-v1-main`: nome, operação, faturamento, origem dos clientes, contato, processamento e resultado. Alternativas, textos e pontuação originais foram preservados.
+Conteúdo importado do fluxo ativo de `lp-quiz-metodosac-v1-main`: nome, operação, faturamento, origem dos clientes, contato e resultado. Alternativas, textos e pontuação originais foram preservados.
+
+Ao abrir o diagnóstico, a URL da página identifica a tela atual: `#etapa1` (nome), `#etapa2` (operação), `#etapa3` (faturamento), `#etapa4` (origem dos clientes), `#etapa5` (contato), `#etapa6` (resultado) e `#etapa7` (obrigado, somente após confirmação do envio). Os parâmetros de campanha permanecem na URL. Voltar entre as perguntas ou reabrir o diagnóstico atualiza a marcação; o botão Voltar do navegador retorna à apresentação. Como as respostas ficam em memória, recarregar ou abrir um link direto para qualquer etapa inicia um novo diagnóstico na primeira tela. O link antigo `#diagnostico` continua funcionando.
 
 ## Executar
 

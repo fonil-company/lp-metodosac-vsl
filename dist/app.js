@@ -9,8 +9,12 @@
   const quizFrame = document.getElementById('quiz-frame');
   let started = false;
   let opener;
+  let quizStep = 1;
+  const isQuizHash = () => location.hash === '#diagnostico' || /^#etapa[1-7]$/.test(location.hash);
+  const updateStepHash = () => history.replaceState(history.state, '', `#etapa${quizStep}`);
   function openQuiz() {
     if (dialog.open) return;
+    updateStepHash();
     if (!quizFrame.hasAttribute('src')) {
       quizFrame.src = `quiz/index.html${window.location.search}`;
     }
@@ -23,7 +27,7 @@
   function closeQuiz() {
     dialog.close();
     document.body.classList.remove('quiz-open');
-    if (location.hash === '#diagnostico') history.replaceState(null, '', location.pathname + location.search);
+    if (isQuizHash()) history.replaceState(history.state, '', location.pathname + location.search);
     opener?.focus({ preventScroll: true });
   }
   document.querySelectorAll('[data-apply]').forEach(link => {
@@ -32,19 +36,30 @@
       event.preventDefault();
       opener = link;
       track('click_apply', { cta_position: link.dataset.apply, destination: '#diagnostico' });
-      if (location.hash !== '#diagnostico') history.pushState(null, '', '#diagnostico');
+      if (!isQuizHash()) history.pushState(null, '', `#etapa${quizStep}`);
       openQuiz();
     });
   });
   document.getElementById('quiz-close').addEventListener('click', closeQuiz);
   dialog.addEventListener('cancel', event => { event.preventDefault(); closeQuiz(); });
-  window.addEventListener('popstate', () => location.hash === '#diagnostico' ? openQuiz() : closeQuiz());
+  const syncQuiz = () => {
+    if (isQuizHash()) {
+      openQuiz();
+      updateStepHash();
+    } else if (dialog.open) closeQuiz();
+  };
+  window.addEventListener('popstate', syncQuiz);
+  window.addEventListener('hashchange', syncQuiz);
   window.addEventListener('message', event => {
     if (event.origin !== location.origin || event.source !== quizFrame.contentWindow) return;
+    if (event.data?.type === 'sac-quiz-step' && Number.isInteger(event.data.step) && event.data.step >= 1 && event.data.step <= 7) {
+      quizStep = event.data.step;
+      if (dialog.open) updateStepHash();
+    }
     if (event.data?.type === 'sac-quiz-close') closeQuiz();
     if (event.data?.type === 'sac-quiz-complete') track('quiz_complete');
   });
-  if (location.hash === '#diagnostico') openQuiz();
+  if (isQuizHash()) openQuiz();
 
   // Load YouTube only after an intentional click. The real playback event is
   // emitted only when the player reports PLAYING, never on the initial click.

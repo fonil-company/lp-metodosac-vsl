@@ -14,10 +14,10 @@ import Screen2OperationType from './screens/Screen2OperationType';
 import Screen5Revenue from './screens/Screen5Revenue';
 import Screen9ClientSource from './screens/Screen9ClientSource';
 import Screen14FinalForm from './screens/Screen16FinalForm';
-import Screen15Processing from './screens/Screen17Processing';
 import Screen16Result from './screens/Screen18Result';
+import ScreenThankYou from './screens/ScreenThankYou';
 
-// Fluxo leve: nome, 3 perguntas, contato, processamento e resultado.
+// Nome, 3 perguntas, contato, resultado e obrigado.
 const PROGRESS_STEPS = [0, 1, 2, 3, 4];
 
 export default function QuizApp() {
@@ -37,6 +37,12 @@ export default function QuizApp() {
   useEffect(() => {
     setState(prev => ({ ...prev, utmParams: getUTMParams() }));
   }, []);
+
+  useEffect(() => {
+    const step = state.currentStep + 1;
+    window.history.replaceState(null, '', `#etapa${step}`);
+    window.parent.postMessage({ type: 'sac-quiz-step', step }, window.location.origin);
+  }, [state.currentStep]);
 
   const goTo = useCallback((step: number, dir = 1) => {
     setDirection(dir);
@@ -66,7 +72,7 @@ export default function QuizApp() {
 
     setState(prev => ({ ...prev, result, isSubmitting: true }));
     // The diagnosis is calculated locally; delivery must not gate its display.
-    if (state.currentStep !== 6) goTo(6, 1);
+    if (state.currentStep !== 5) goTo(5, 1);
 
     // Build submission payload
     const payload = {
@@ -117,6 +123,7 @@ export default function QuizApp() {
       if (!response.ok || !(await response.json()).success) throw new Error('submit');
       submitted.current = true;
       setDeliveryStatus('sent');
+      goTo(6, 1);
       window.parent.postMessage({ type: 'sac-quiz-complete' }, window.location.origin);
     } catch {
       setDeliveryStatus('failed');
@@ -150,8 +157,8 @@ export default function QuizApp() {
       case 2: return <Screen5Revenue {...props} />;
       case 3: return <Screen9ClientSource {...props} />;
       case 4: return <Screen14FinalForm {...props} onSubmit={submitAndShowResult} />;
-      case 5: return <Screen15Processing firstName={state.answers.firstName} />;
-      case 6: return <Screen16Result answers={state.answers} result={state.result!} deliveryStatus={deliveryStatus} onRetry={submitAndShowResult} />;
+      case 5: return <Screen16Result answers={state.answers} result={state.result!} deliveryStatus={deliveryStatus} onRetry={submitAndShowResult} />;
+      case 6: return <ScreenThankYou answers={state.answers} result={state.result!} />;
       default: return null;
     }
   };
