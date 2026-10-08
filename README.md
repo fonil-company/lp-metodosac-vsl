@@ -44,3 +44,13 @@ UTMs e identificadores de campanha são repassados ao CRM. O Pixel PageView exis
 ## Verificação
 
 Com o servidor ativo, execute `node scripts/verify.mjs`. O teste verifica desktop e celular, campos obrigatórios, preservação das respostas, resultado, UTMs e falhas de envio. Envios são simulados e não geram cadastros reais.
+
+Execute também `node scripts/verify-serving.mjs` para verificar compressão, cache e os trechos dos vídeos usados na reprodução e ao avançar.
+
+## Desempenho
+
+As fontes WOFF2 mantêm os mesmos caracteres e os logos WebP usam compressão sem perda. Os arquivos originais permanecem disponíveis. O build minifica o JavaScript e CSS da apresentação e gera versões Brotli/gzip dos arquivos de texto.
+
+O servidor Node entrega a compressão aceita pelo navegador, revalida o cache com ETag e transmite arquivos por streaming. Os vídeos aceitam requisições de trechos (HTTP Range), sem carregar o arquivo inteiro na memória do servidor. O quiz e o YouTube continuam carregando somente quando abertos; os depoimentos permanecem com `preload="none"`.
+
+Na medição local em Chromium, em 08/10/2026, os arquivos próprios transferidos no primeiro carregamento passaram de 1.111.312 para 604.488 bytes (46% menos). Abrir o quiz na mesma sessão passou de 1.091.207 para 141.763 bytes adicionais (87% menos), com as fontes reutilizadas do cache. Os números excluem serviços de terceiros e não representam uma medição da hospedagem pública. Outros servidores devem configurar sua própria compressão e cache.

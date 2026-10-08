@@ -9,7 +9,7 @@ export default function Logo({ size = 'sm' }: { size?: 'sm' | 'md' }) {
       style={{ width, maxWidth: '100%', aspectRatio: '1000 / 340' }}
     >
       <img
-        src="../logo-metodo-sac.png"
+        src="../logo-metodo-sac.webp"
         alt="Método S.A.C — Sistema de Aquisição de Clientes"
         height={1000}
         width={1000}
