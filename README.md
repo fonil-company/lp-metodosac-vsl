@@ -39,7 +39,7 @@ O site precisa do Worker para enviar cadastros; hospedagem exclusivamente estát
 
 Em 06/10/2026, o serviço CRM original retornou HTTP 402 com `DEPLOYMENT_DISABLED`. É necessário reativá-lo ou configurar outro webhook para receber cadastros. O resultado é calculado e exibido independentemente do envio. Na falha, a tela de resultado informa que os dados ainda não foram entregues e permite tentar novamente. As respostas ficam apenas na memória da página aberta, sem confirmação falsa nem promessa de envio automático posterior.
 
-UTMs e identificadores de campanha são repassados ao CRM. O Pixel PageView existente permanece na VSL. `dataLayer` recebe `click_apply`, `quiz_start` e `quiz_complete`; o último só ocorre após confirmação de envio. Esses eventos não contêm dados pessoais.
+UTMs e identificadores de campanha são repassados ao CRM. O Pixel PageView existente permanece na VSL. O evento Meta Pixel `Lead` só dispara após `/api/submit` responder com HTTP de sucesso e `success: true`, confirmado depois que o webhook CRM aceita o cadastro. Abrir o quiz, clicar no envio, exibir o resultado ou falhar no envio não dispara Lead. O Pixel usa como `eventID` o mesmo `event_id` enviado ao CRM, preservado nas tentativas; mensagens repetidas da mesma conclusão são ignoradas. `dataLayer` recebe `click_apply`, `quiz_start` e `quiz_complete`; o último também só ocorre após confirmação de envio e inclui `event_id`. Esses eventos não contêm dados pessoais.
 
 ## Verificação
 

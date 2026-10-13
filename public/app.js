@@ -7,6 +7,7 @@
   track('view_content');
   const dialog = document.getElementById('diagnostico');
   const quizFrame = document.getElementById('quiz-frame');
+  const completedEventIds = new Set();
   let started = false;
   let opener;
   let quizStep = 1;
@@ -57,7 +58,14 @@
       if (dialog.open) updateStepHash();
     }
     if (event.data?.type === 'sac-quiz-close') closeQuiz();
-    if (event.data?.type === 'sac-quiz-complete') track('quiz_complete');
+    if (event.data?.type === 'sac-quiz-complete') {
+      const eventId = event.data.eventId;
+      if (typeof eventId !== 'string' || !eventId.trim() || completedEventIds.has(eventId)) return;
+      completedEventIds.add(eventId);
+      track('quiz_complete', { event_id: eventId });
+      // The quiz sends this message only after the CRM delivery is confirmed.
+      if (typeof window.fbq === 'function') window.fbq('track', 'Lead', {}, { eventID: eventId });
+    }
   });
   if (isQuizHash()) openQuiz();
 
