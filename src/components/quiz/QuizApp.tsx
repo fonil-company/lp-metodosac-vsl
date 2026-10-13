@@ -120,11 +120,11 @@ export default function QuizApp() {
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout(20000),
       });
-      if (!response.ok || (await response.json()).success !== true) throw new Error('submit');
+      if (!response.ok || !(await response.json()).success) throw new Error('submit');
       submitted.current = true;
       setDeliveryStatus('sent');
       goTo(6, 1);
-      window.parent.postMessage({ type: 'sac-quiz-complete', eventId: eventId.current }, window.location.origin);
+      window.parent.postMessage({ type: 'sac-quiz-complete' }, window.location.origin);
     } catch {
       setDeliveryStatus('failed');
     } finally {

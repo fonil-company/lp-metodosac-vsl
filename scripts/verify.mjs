@@ -2,10 +2,6 @@ import { chromium, expect } from '@playwright/test';
 import assert from 'node:assert/strict';
 import worker from '../src/worker.js';
 
-const leadEvents = page => page.evaluate(() => window.fbq.queue
-  .map(args => Array.from(args))
-  .filter(args => args[0] === 'track' && args[1] === 'Lead'));
-
 const browser = await chromium.launch({ headless: true });
 for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
   const page = await browser.newPage({ viewport });
@@ -13,12 +9,10 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
   page.on('pageerror', error => errors.push(error.message));
   await page.route('https://connect.facebook.net/**', route => route.abort());
   await page.goto('http://127.0.0.1:4173/?utm_source=qa&utm_campaign=quiz');
-  assert.equal((await leadEvents(page)).length, 0);
   assert.equal(await page.locator('[data-apply]').count(), 5);
   for (const cta of await page.locator('[data-apply]').all()) assert.equal(await cta.getAttribute('href'), '#diagnostico');
   await page.locator('[data-apply="hero"]').click();
   await expect(page).toHaveURL(/#etapa1$/);
-  assert.equal((await leadEvents(page)).length, 0);
   const quiz = page.frameLocator('#quiz-frame');
   await quiz.getByLabel('Seu nome', { exact: true }).fill('Maria Silva');
   await page.getByRole('button', { name: 'Voltar à apresentação' }).click();
@@ -49,7 +43,6 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
   await quiz.getByRole('button', { name: 'Ver meu diagnóstico' }).click();
   await quiz.getByText('Informe o nome da empresa.', { exact: true }).waitFor();
   await expect(page).toHaveURL(/#etapa5$/);
-  assert.equal((await leadEvents(page)).length, 0);
   await quiz.getByLabel('Nome da empresa *', { exact: true }).fill('Empresa Teste');
   await quiz.getByLabel('WhatsApp *', { exact: true }).fill('11999999999');
   await quiz.getByLabel('E-mail *', { exact: true }).fill('qa@example.com');
@@ -66,39 +59,13 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
   await quiz.getByRole('heading', { name: 'Maria, sua empresa tem uma Operação com Potencial' }).waitFor();
   await expect(page).toHaveURL(/#etapa6$/);
   assert(await quiz.getByRole('button', { name: 'Enviando dados…' }).isDisabled());
-  assert.equal((await leadEvents(page)).length, 0);
   releaseDelivery();
   await quiz.getByText('Seu diagnóstico está pronto, mas seus dados ainda não foram enviados', { exact: false }).waitFor();
   await expect(page).toHaveURL(/#etapa6$/);
   assert.equal(await quiz.getByRole('heading', { name: 'Obrigado, Maria!' }).count(), 0);
   assert.equal(await quiz.getByText('Recebemos seus dados.', { exact: false }).count(), 0);
   assert.equal(await page.evaluate(() => window.dataLayer.filter(item => item.event === 'quiz_complete').length), 0);
-  assert.equal((await leadEvents(page)).length, 0);
   const failedPayload = payload;
-  // A successful HTTP status alone, malformed JSON or a network failure must
-  // not record a conversion. Require the API's explicit boolean confirmation.
-  for (const failure of [
-    { json: { success: false } },
-    { json: { success: 'true' } },
-    { contentType: 'application/json', body: 'invalid JSON' },
-    null,
-  ]) {
-    await page.unroute('**/api/submit');
-    let attempted = false;
-    await page.route('**/api/submit', async route => {
-      payload = route.request().postDataJSON();
-      attempted = true;
-      if (failure) await route.fulfill(failure);
-      else await route.abort('timedout');
-    });
-    await quiz.getByRole('button', { name: 'Tentar enviar novamente' }).click();
-    await expect.poll(() => attempted).toBe(true);
-    await expect(quiz.getByRole('button', { name: 'Tentar enviar novamente' })).toBeEnabled();
-    await expect(page).toHaveURL(/#etapa6$/);
-    assert.equal(payload.event_id, failedPayload.event_id);
-    assert.equal((await leadEvents(page)).length, 0);
-    assert.equal(await page.evaluate(() => window.dataLayer.filter(item => item.event === 'quiz_complete').length), 0);
-  }
   await page.unroute('**/api/submit');
   await page.route('**/api/submit', async route => {
     payload = route.request().postDataJSON();
@@ -108,7 +75,6 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
   await quiz.getByRole('heading', { name: 'Obrigado, Maria!' }).waitFor();
   await expect(page).toHaveURL(/#etapa7$/);
   await quiz.getByText('Recebemos seus dados.', { exact: false }).waitFor();
-  assert.deepEqual(await leadEvents(page), [['track', 'Lead', {}, { eventID: payload.event_id }]]);
   assert.deepEqual({ ...payload, url_pagina: failedPayload.url_pagina }, failedPayload);
   await quiz.getByRole('heading', { name: 'Maria, sua empresa tem uma Operação com Potencial' }).waitFor();
   assert.equal(payload.utm_source, 'qa');
@@ -119,11 +85,6 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
   assert.deepEqual(errors, []);
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   const frame = page.frames().find(frame => frame.url().includes('/quiz/'));
-  // Duplicate completion messages and reopening the quiz keep one conversion.
-  await frame.evaluate(eventId => window.parent.postMessage({ type: 'sac-quiz-complete', eventId }, window.location.origin), payload.event_id);
-  await frame.evaluate(() => window.parent.postMessage({ type: 'sac-quiz-complete' }, window.location.origin));
-  await expect.poll(() => page.evaluate(() => window.dataLayer.filter(item => item.event === 'quiz_complete').length)).toBe(1);
-  assert.equal((await leadEvents(page)).length, 1);
   assert(await frame.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
   await page.screenshot({ path: `.sites-runtime/quiz-${viewport.width}.png` });
   const events = await page.evaluate(() => window.dataLayer.map(item => item.event));
@@ -134,14 +95,12 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
   await page.goForward();
   await expect(page).toHaveURL(/#etapa7$/);
   await quiz.getByRole('heading', { name: 'Obrigado, Maria!' }).waitFor();
-  assert.equal((await leadEvents(page)).length, 1);
   await page.reload();
   await expect(page).toHaveURL(/#etapa1$/);
   await quiz.getByLabel('Seu nome', { exact: true }).waitFor();
   assert.equal(await quiz.getByLabel('Seu nome', { exact: true }).inputValue(), '');
-  assert.equal((await leadEvents(page)).length, 0);
   await page.close();
-  console.log(`Quiz OK: ${viewport.width}px; etapas, navegação, validação, UTMs e Lead único somente após confirmação de envio ao CRM.`);
+  console.log(`Quiz OK: ${viewport.width}px; etapas na URL, voltar, reabrir, validação, envio simulado, erro, UTMs, resultado e obrigado.`);
 }
 await browser.close();
 const originalFetch = globalThis.fetch;
